@@ -53,7 +53,7 @@ const handleInputChange = (event) => {
        const response = await axios.put("http://localhost:8000/list/"+state.list._id+"/edit", formDataToSend);
        if(response.data.success){
         if(response.data.list){
-            // navigate("/show", {state : {alert : true}});
+            navigate("/show", {state : {list : response.data.list, alert : true}});
             setFormData({
                 title : response.data.list.title,
                 description : response.data.list.description,

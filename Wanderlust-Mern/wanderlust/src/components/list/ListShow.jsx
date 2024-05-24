@@ -26,8 +26,9 @@ export default function ListShow(){
     };
 
     // const [alertVisibility, setAlertVisibility] = useState(state ? state.alert : false);
-    const [alertVisibility, setAlertVisibility] = useState(false);
+    const [alertVisibility, setAlertVisibility] = useState(state.alert);
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => {
           setAlertVisibility(false);
         }, 3000);
@@ -35,9 +36,9 @@ export default function ListShow(){
 
     return (
         <>
-        <Fade in={alertVisibility} timeout={{ exit: 1000 }}>
+        <Fade in={alertVisibility}>
             <Alert severity="success" onClose={() => {setAlertVisibility(false);}}>
-                This Alert displays the default close icon.
+                Update Successfull.
             </Alert>
         </Fade>
             <div className="row">

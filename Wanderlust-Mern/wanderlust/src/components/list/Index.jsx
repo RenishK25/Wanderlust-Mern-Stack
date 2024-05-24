@@ -16,8 +16,9 @@ export default function Index() {
     
     useEffect(() => {
         async function loadCard(){
-            let fetchLists = await fetch("http://localhost:8000/");            
-            let lists = await fetchLists.json();
+            // let fetchLists = await fetch("http://localhost:8000/");            
+            let fetchLists = await axios.get("http://localhost:8000/");
+            let lists = await fetchLists.data;
             setLists(lists);
         };
         loadCard();

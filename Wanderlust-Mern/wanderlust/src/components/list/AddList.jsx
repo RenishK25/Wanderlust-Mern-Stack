@@ -1,3 +1,4 @@
+import { Alert, Fade } from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
 
@@ -11,6 +12,10 @@ export default function AddList(){
      location : "",
      country : "",
  });
+ 
+//  let error = "";
+ const [alertVisibility, setAlertVisibility] = useState(false);
+ const [error, setError] = useState();
  
  const handleInputChange = (event) => {
     const { name, value, type } = event.target;
@@ -29,13 +34,22 @@ export default function AddList(){
         const response = await axios.post("http://localhost:8000/list/add", formDataToSend);
         if(response.data.success){
             setFormData("");
+        }else{
+            setAlertVisibility(true);
+            setError(response.data.error);
         }
     } catch (error) {
         console.error("Axios error:", error);
     }
 };
+
     return(
         <>
+        <Fade in={alertVisibility}>
+            <Alert severity="error" onClose={() => {setAlertVisibility(false);}}>
+                {error}
+            </Alert>
+        </Fade>
              <form onSubmit={handleSubmit}  className="needs-validation" method="post" encType="multipart/form-data">
             {/* <form action="http://localhost:8000/list/add" className="needs-validation" method="post" encType="multipart/form-data"> */}
                 <div className="row">
