@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
 import Card from "./Card"
-import axios from "axios"
-
-export default function Index() {    
-    const [lists, setLists] = useState([]);
+import { useDispatch, useSelector } from "react-redux";
+import { allList } from "../../app/index"
+export default function Index() {
     const [taxes, setTaxes] = useState(false);
+    const dispatch = useDispatch();
+
+    const lists = useSelector((state) => state.list.lists);
+
+    useEffect(() => {
+       dispatch(allList());
+    }, [dispatch]);
+
+    const getUserFromStorage = () => {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+      };
+      const [user, setUser] = useState(getUserFromStorage);
 
     let taxShowHide = (e) => {
        if(e.target.checked){
@@ -14,16 +26,6 @@ export default function Index() {
           }
     }
     
-    useEffect(() => {
-        async function loadCard(){
-            // let fetchLists = await fetch("http://localhost:8000/");            
-            let fetchLists = await axios.get("http://localhost:8000/");
-            let lists = await fetchLists.data;
-            setLists(lists);
-        };
-        loadCard();
-    }, []);
-
   return (
     <>
         <div className="filters">
@@ -83,7 +85,7 @@ export default function Index() {
         </div>
 
         <div className="row row-cols-lg-4 row-cols-md-2 row-cols-sm-1">
-            {/* {console.log(lists.map(list))} */}
+            {/* {console.log(lists)} */}
         {lists.map((list, index) => {
             return <Card list={list} key={index} taxes={taxes} />
             })

@@ -1,12 +1,33 @@
 import { useState } from "react"
 import {Avatar, Stack } from '@mui/material';
 import styled from "styled-components";
+import axios from "axios";
 
 
 export default function Header() {
+  
+  const getUserFromStorage = () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  };
+  const [user, setUser] = useState(getUserFromStorage);
+
+  let logout = async () => {
+    let logout = await axios.post("http://localhost:8000/logout", {}, {
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`
+    }
+    });
+    if(logout){
+      localStorage.removeItem('user');
+      setUser(null);
+    }else{
+      console.log("LogOut Error");
+    }
+  }
   return (
     <Container>
-<nav className="navbar navbar-expand-md bg-body-light sticky-top">
+    <nav className="navbar navbar-expand-md bg-body-light sticky-top">
     <div className="container container-fluid">
       <a className="navbar-brand" href="/"><i className="fa-solid fa-compass"></i></a>
       <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,25 +45,22 @@ export default function Header() {
           <div className="nav-link profile" href="/">
           <Stack direction="row" spacing={1}>
           <i className="fa-solid fa-list"></i>
-          <Avatar className="avatar" sx={{width:"2rem", height:"2rem"}}>R</Avatar>
-
+          {user ? (
+            <Avatar className="avatar" sx={{width:"2rem", height:"2rem"}}>{user.user.username[0].toUpperCase()}</Avatar>
+          ) : (
+              <Avatar></Avatar>
+            ) }
           </Stack>
-            {/* <i className="fa-solid fa-list"></i> */}
-            {/* <% if(user && user != undefined){ %> */}
-              {/* <%= user.username %> */}
-            {/* <% }else{ %> */}
-              {/* <i className="fa-solid fa-user"></i> */}
-              {/* <Avatar></Avatar> */}
-            {/* <% } %> */}
+
             <ul className="navbar-nav-menu">
-              {/* <% if(user && user != undefined){ %> */}
-                {/* <li><a href="/logout"> Logout </a></li> */}
-              {/* <% }else{ %> */}
-              {/* <li><a href="/login"> Log in </a></li>
-              <li><a href="/signup"> Sign up </a></li> */}
-              <a href="/login"><li> Log in </li></a>
-              <a href="/signup"><li> Sign up </li></a>
-             {/* <% } %> */}
+            {user ? (
+                <li onClick={logout}> Logout </li>
+          ) : (
+            <>
+            <li><a href="/login"> Log in </a></li>
+            <li><a href="/register"> Sign up </a></li> 
+            </>
+          )}
             </ul>
           </div>
           

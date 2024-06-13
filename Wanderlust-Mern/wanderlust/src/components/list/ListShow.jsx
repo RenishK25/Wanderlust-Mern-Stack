@@ -2,13 +2,50 @@
 import { Alert, Fade } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"
+import Comment from "./Comment";
+import axios from "axios";
 
 
 export default function ListShow(){
     let { state } = useLocation();
     let navigate = useNavigate();
+    const formFields = {
+        title: "",
+        description : "",
+        image : "",
+        price : "",
+        location : "",
+        country : "",
+        owner : "",
+        reviews : ""
+    };
+    const [list, setList] = useState(formFields);
 
-    const [formData, setFormData] = useState({
+
+    useEffect(() => {
+        async function loadCard(){
+            // let fetchLists = await fetch("http://localhost:8000/list/"+state.list._id);     
+            let fetchLists = await axios.get("http://localhost:8000/list/"+state.list._id, {
+                // headers: {
+                //     Authorization: `Bearer ${user.accessToken}`
+                // }
+            });
+            let data = await fetchLists.data;
+            setList({
+                title : data.list.title,
+                description : data.list.description,
+                image : data.list.image,
+                price : data.list.price,
+                location : data.list.location,
+                country : data.list.country,
+                owner : data.list.owner,
+                reviews : data.list.reviews,
+            })
+        };
+        loadCard();
+    }, []);
+    
+const [formData, setFormData] = useState({
         "review[rating]" : "",
         "review[comment]" : "",
     });
@@ -32,10 +69,23 @@ export default function ListShow(){
         setTimeout(() => {
           setAlertVisibility(false);
         }, 3000);
+      }, []);
+
+    const deleteList = async () => {
+        // alert();
+       const response = await axios.delete("http://localhost:8000/list/"+state.list._id, {
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`
+      }
       });
+        if(response.data.success){
+            navigate("/");
+        }
+    }
 
     return (
         <>
+        {/* {console.log(list) } */}
         <Fade in={alertVisibility}>
             <Alert severity="success" onClose={() => {setAlertVisibility(false);}}>
                 Update Successfull.
@@ -43,27 +93,27 @@ export default function ListShow(){
         </Fade>
             <div className="row">
                 <div className="col-8 offset-3">
-                    <h1> {state.list.title} </h1>
+                    <h1> {list.title} </h1>
                 </div>
                 <div className="card col-6 offset-3 list-card">
-                    <img className="card-img-top show-img" src={state.list.image.url} alt="Card image cap" />
+                    <img className="card-img-top show-img" src={list.image?.url} alt="Card image cap" />
                     <div className="card-body">
                     <p className="card-text">
-                        Owner By : {state.list.owner.username}
+                        Owner By : {list.owner?.username}
                     </p>
 
                     <p className="card-text"> 
-                        {state.list.description} <br />
+                        {list.description} <br />
                     </p>
                     <p className="card-text">
-                        {state.list.location} <br />
+                        {list.location} <br />
         
                     </p>
                     <p className="card-text">
-                        {state.list.country} <br />
+                        {list.country} <br />
                     </p>
                     <p className="card-text">
-                    &#8377; {state.list.price.toLocaleString("en-IN")}
+                    &#8377; {list.price?.toLocaleString("en-IN")}
                     </p>
         
                     </div>
@@ -76,7 +126,7 @@ export default function ListShow(){
                     {/* <button className="btn btn-danger" onClick={() => navigate("/edit", {state : {list :state.list}})  }> Edit </button> */}
                     <button className="btn btn-danger" onClick={() => navigate("/edit", {state : {list :state.list}})  }> Edit </button>
                 
-                    <button className="btn btn-dark offset-2" > Delete </button>
+                    <button className="btn btn-dark offset-2" onClick={deleteList}> Delete </button>
             </div>
          
             
@@ -114,8 +164,9 @@ export default function ListShow(){
                     <br />
                     <br />
                 </form>
-                
-                {/* {state.list.reviews != "" && state.list.reviews != null? <Review /> : "" } */}
+                {list.reviews && 
+                    <Comment reviews={list.reviews} listId={state.list._id} />
+                }
             </div>
         </>
 

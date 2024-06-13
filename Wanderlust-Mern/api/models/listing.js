@@ -11,6 +11,7 @@ const listingSchema = new Schema({
     image : {
         url : String,
         filename : String,
+        publicId : String,
     },
     price : Number,
     location : String,
@@ -31,7 +32,6 @@ const listingSchema = new Schema({
 listingSchema.post("findOneAndDelete", async (list) => {
     if(list){
         console.log(list);
-        // console.log("sdwsdwsd");
        await Review.deleteMany({_id : {$in : list.reviews}})
     }
 })

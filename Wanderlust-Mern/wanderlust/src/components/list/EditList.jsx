@@ -6,8 +6,13 @@ import styled from "styled-components";
 
 function EditList() {
     let navigate = useNavigate();
-
    let { state } = useLocation();
+   const getUserFromStorage = () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  };
+  const [user, setUser] = useState(getUserFromStorage);
+  
    const [formData, setFormData] = useState({
     title : "",
     description : "",
@@ -50,7 +55,11 @@ const handleInputChange = (event) => {
        formDataToSend.append(key, formData[key]);
    });
    try {
-       const response = await axios.put("http://localhost:8000/list/"+state.list._id+"/edit", formDataToSend);
+       const response = await axios.put("http://localhost:8000/list/"+state.list._id+"/edit", formDataToSend, {
+            headers: {
+                Authorization: `Bearer ${user.accessToken}`
+            }
+        });
        if(response.data.success){
         if(response.data.list){
             navigate("/show", {state : {list : response.data.list, alert : true}});

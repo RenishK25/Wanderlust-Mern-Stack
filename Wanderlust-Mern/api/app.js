@@ -2,7 +2,6 @@ if(process.env.NODE_ENV != "production"){
     require("dotenv").config();
 }
 
-const dbUrl = process.env.MONGODB_URL;
 
 const express = require('express');
 const mongoose = require("mongoose");
@@ -14,7 +13,7 @@ const cors = require("cors");
 const methodOverride = require('method-override');
 const ExpressError = require('./utils/ExpressError.js');
 const flash = require('connect-flash');
-const cookie = require('cookie-parse');
+const cookieParser = require('cookie-parser')
 const session = require('express-session');
 const List = require('./models/listing');
 const passport = require('passport');
@@ -24,8 +23,10 @@ const User = require("./models/user");
 const listRoute = require("./routes/list.js");
 const reviewRoute = require("./routes/review.js");
 const userRoute = require("./routes/user.js");
+const { verifyJWT } = require("./middleware.js");
 
 const app = express();
+app.use(cookieParser());
 app.engine('ejs', ejsMate);
 app.use(session({
     secret: 'secretkey',
@@ -55,7 +56,7 @@ app.use(express.urlencoded({ extended : true }));
 main().then( () => console.log("DB Connection SuccessFull")).catch(err => console.log(err));
 
 async function main() {
-  await mongoose.connect(dbUrl);
+  await mongoose.connect(process.env.MONGODB_URL);
 };
 
 app.use((req, res, next) => {
@@ -113,7 +114,6 @@ app.use("/", userRoute);
 app.use((err, req, res, next) => {
     console.log("--------ERROR HANDLER -------"); 
     let {status = 500, message = "Server Error"} = err;
-    console.log(message);
+    // console.log(message);
     return res.json({error : message });
-    // res.render("error.ejs", { message } );
 });
