@@ -26,7 +26,8 @@ router.route("/:id")
     .delete( verifyJWT, listController.destroy);
 
 router.route("/:id/edit")
-    .get(isLoggedin, isOwner, listController.edit)
+    // .get(isLoggedin, isOwner, listController.edit)
+    .get( verifyJWT, listController.edit)
     
     // .put(isLoggedin, isOwner, upload.single("list[image]"), validateList, listController.update);
     .put( verifyJWT, upload.single("image"), validateList, listController.update);

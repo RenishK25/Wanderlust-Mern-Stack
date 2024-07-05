@@ -35,8 +35,6 @@ module.exports.verifyJWT = wrapAsync(async(req, _, next) => {
 module.exports.isLoggedin = (req, res, next) =>{
     if(!req.isAuthenticated()){
         req.session.redirectUrl = req.originalUrl;
-        // req.session.redirectUrl = req.headers.referer;
-        // console.log(req.session.redirectUrl);
         req.flash("error", "Login to Proceed");
         return res.redirect('/login');
     }
@@ -48,7 +46,7 @@ module.exports.saveRedirectUrl = (req, res, next) =>{
     // console.log("REQUEST========",req.session.redirectUrl);
     if(req.session.redirectUrl){
         // console.log("req.session.redirectUrl",req.session.redirectUrl);
-        return res.locals.redirectUrl = req.session.redirectUrl;
+        res.locals.redirectUrl = req.session.redirectUrl;
     }
     next();
 }

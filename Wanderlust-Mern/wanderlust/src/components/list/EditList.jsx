@@ -1,83 +1,67 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { listEdit } from "../../app/index";
+import { useUser } from '../../app/UserContext';
+
 
 
 function EditList() {
     let navigate = useNavigate();
-   let { state } = useLocation();
-   const getUserFromStorage = () => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  };
-  const [user, setUser] = useState(getUserFromStorage);
-  
-   const [formData, setFormData] = useState({
-    title : "",
-    description : "",
-    // image : "",
-    price : "",
-    location : "",
-    country : "",
-   });
-
-   useEffect(() => {
-    async function loadCard(){
-        let fetchLists = await fetch("http://localhost:8000/list/"+state.list._id);            
-        let data = await fetchLists.json();
-        setFormData({
-            title : data.list.title,
-            description : data.list.description,
-            image : data.list.image,
-            price : data.list.price,
-            location : data.list.location,
-            country : data.list.country,
-        });
-    };
-    loadCard();
-}, []);
-
-const handleInputChange = (event) => {
-    const { name, value, type } = event.target;
-    const newValue = type === "file" ? event.target.files[0] : value;
-    setFormData({
-        ...formData,
-        [name]: newValue
+    let { state } = useLocation();
+    let dispatch = useDispatch();
+    const list = useSelector((state) => state.list.lists);    
+    const [formData, setFormData] = useState({
     });
-};
+    useEffect(() => {
+        dispatch(listEdit(state.listId));
+    }, []);
 
-  const handleSubmit = async (event) => {
-   event.preventDefault();
-   const formDataToSend = new FormData();
-   Object.keys(formData).forEach(key => {
-    console.log(formData[key]);
-       formDataToSend.append(key, formData[key]);
-   });
-   try {
-       const response = await axios.put("http://localhost:8000/list/"+state.list._id+"/edit", formDataToSend, {
-            headers: {
-                Authorization: `Bearer ${user.accessToken}`
-            }
-        });
-       if(response.data.success){
-        if(response.data.list){
-            navigate("/show", {state : {list : response.data.list, alert : true}});
+    useEffect(() => {
+        if (list) {
             setFormData({
-                title : response.data.list.title,
-                description : response.data.list.description,
-                image : response.data.list.image,
-                price : response.data.list.price,
-                location : response.data.list.location,
-                country : response.data.list.country
+                title: list.title,
+                description: list.description,
+                image: list.image,
+                price: list.price,
+                location: list.location,
+                country: list.country
             });
         }
-       }
-   } catch (error) {
-       console.error("Axios error:", error);
-   }
-};
+    }, [list]);
 
+    const handleInputChange = (event) => {
+        const { name, value, type } = event.target;
+        const newValue = type === "file" ? event.target.files[0] : value;
+        setFormData({
+            ...formData,
+            [name]: newValue
+        });
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formDataToSend = new FormData();
+        Object.keys(formData).forEach(key => {
+            console.log(formData[key]);
+            formDataToSend.append(key, formData[key]);
+        });
+
+        dispatch(listUpdate({ listId: list._id, formData: formDataToSend }))
+            .unwrap()
+            .then((response) => {
+                console.log(response);
+                if (response.success) {
+                    navigate("/show", { state: { listId: list._id } });
+                    dispatch(setCurrentList(response.list));
+                }
+            })
+            .catch((error) => {
+                console.error("Axios error:", error);
+            });
+    };
     return (
       <Container>
         <form onSubmit={handleSubmit}  className="needs-validation" method="post" encType="multipart/form-data">
@@ -133,7 +117,7 @@ const handleInputChange = (event) => {
      </form>
       </Container>
     )
-  }
+}
 
   const Container = styled.div`
   .title{

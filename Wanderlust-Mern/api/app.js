@@ -60,7 +60,7 @@ async function main() {
 };
 
 app.use((req, res, next) => {
-
+    // console.log(req.user);
     // req.flash("success", "this is first flash message");
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -94,6 +94,7 @@ app.get("/api",(req, res) => {
 // );
 
 app.get('/', wrapAsync(async (req, res) => {
+    // console.log(res.locals.user);
     let lists = await List.find();
     return res.json(lists);
     // return lists;

@@ -2,7 +2,7 @@ import { useState } from "react"
 import {Avatar, Stack } from '@mui/material';
 import styled from "styled-components";
 import axios from "axios";
-
+// import { useUser } from '../app/UserContext';
 
 export default function Header() {
   
@@ -11,6 +11,7 @@ export default function Header() {
     return user ? JSON.parse(user) : null;
   };
   const [user, setUser] = useState(getUserFromStorage);
+  // const { user, setUser } = useUser(); // Access the user from the context
 
   let logout = async () => {
     let logout = await axios.post("http://localhost:8000/logout", {}, {

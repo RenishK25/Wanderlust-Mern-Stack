@@ -30,13 +30,14 @@ module.exports.show = async(req, res) => {
 };
 
 module.exports.edit = async (req, res) => {
+    console.log("edit call");
     let { id } = req.params;
     let list = await List.findById(id);
     if(!list){
         req.flash("error", "List You Requested Is Not Exist!");
         res.redirect("/");
     }
-    res.render("listings/edit.ejs",{ list });
+    return res.json({success : "Data Get Successfull", list});
 }
 
 module.exports.update = async (req, res) => {
@@ -58,9 +59,11 @@ module.exports.update = async (req, res) => {
 module.exports.destroy = async (req, res) => {
     let { id } = req.params;
     let list = await List.findById(id);
-    // if(!list.owner.equals(res.locals.user._id)){
-    //     return res.json({error : "You don't have permission to Delete list"});
-    // }
+    // console.log(res.locals.user);
+    // console.log(req.user);
+    if(!list.owner.equals(req.user._id)){
+        return res.json({error : "You don't have permission to Delete list"});
+    }
     if(list.image.publicId){
         await deleteImageFromCloudinary(list.image.publicId);
     }

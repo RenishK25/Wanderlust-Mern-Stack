@@ -4,66 +4,39 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"
 import Comment from "./Comment";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { listDelete, listShow } from "../../app/index"
 
 
 export default function ListShow(){
     let { state } = useLocation();
     let navigate = useNavigate();
-    const formFields = {
-        title: "",
-        description : "",
-        image : "",
-        price : "",
-        location : "",
-        country : "",
-        owner : "",
-        reviews : ""
-    };
-    const [list, setList] = useState(formFields);
+    let dispatch = useDispatch();
+    const list = useSelector((state) => state.list.lists);
 
-
+    
     useEffect(() => {
-        async function loadCard(){
-            // let fetchLists = await fetch("http://localhost:8000/list/"+state.list._id);     
-            let fetchLists = await axios.get("http://localhost:8000/list/"+state.list._id, {
-                // headers: {
-                //     Authorization: `Bearer ${user.accessToken}`
-                // }
-            });
-            let data = await fetchLists.data;
-            setList({
-                title : data.list.title,
-                description : data.list.description,
-                image : data.list.image,
-                price : data.list.price,
-                location : data.list.location,
-                country : data.list.country,
-                owner : data.list.owner,
-                reviews : data.list.reviews,
-            })
-        };
-        loadCard();
+        dispatch(listShow(state.listId));
     }, []);
     
-const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
         "review[rating]" : "",
         "review[comment]" : "",
     });
 
-      const handleInputChange = (event) => {
+    const handleInputChange = (event) => {
         setFormData({
           ...formData,
           [event.target.name]: event.target.value
         });
-      };
+    };
 
-      const handleSubmit = (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         console.log("Form submitted:", formData["review[comment]"]);
     };
 
-    // const [alertVisibility, setAlertVisibility] = useState(state ? state.alert : false);
-    const [alertVisibility, setAlertVisibility] = useState(state.alert);
+    const [alertVisibility, setAlertVisibility] = useState(state ? state.alert : false);
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => {
@@ -72,20 +45,21 @@ const [formData, setFormData] = useState({
       }, []);
 
     const deleteList = async () => {
-        // alert();
-       const response = await axios.delete("http://localhost:8000/list/"+state.list._id, {
-        headers: {
-          Authorization: `Bearer ${user.accessToken}`
-      }
-      });
-        if(response.data.success){
-            navigate("/");
-        }
+        // if(deleteList(list.id)){
+            // navigate("/");
+        // }
+        dispatch(listDelete(list._id)).unwrap().then((response) => {
+            console.log(response);
+            if (response.success) {
+                navigate("/", { state: { listId: list._id } });
+            }
+        })
+        .catch((error) => {
+            console.error("Axios error:", error);
+        });
     }
-
     return (
         <>
-        {/* {console.log(list) } */}
         <Fade in={alertVisibility}>
             <Alert severity="success" onClose={() => {setAlertVisibility(false);}}>
                 Update Successfull.
@@ -123,8 +97,7 @@ const [formData, setFormData] = useState({
             </div>
  
             <div className="col-2 offset-3 d-flex mb-3">
-                    {/* <button className="btn btn-danger" onClick={() => navigate("/edit", {state : {list :state.list}})  }> Edit </button> */}
-                    <button className="btn btn-danger" onClick={() => navigate("/edit", {state : {list :state.list}})  }> Edit </button>
+                    <button className="btn btn-danger" onClick={() => navigate("/edit", {state : {listId : list._id} })  }> Edit </button>
                 
                     <button className="btn btn-dark offset-2" onClick={deleteList}> Delete </button>
             </div>
@@ -165,7 +138,7 @@ const [formData, setFormData] = useState({
                     <br />
                 </form>
                 {list.reviews && 
-                    <Comment reviews={list.reviews} listId={state.list._id} />
+                    <Comment reviews={list.reviews} listId={list.id} />
                 }
             </div>
         </>

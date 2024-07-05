@@ -73,7 +73,7 @@ module.exports.login = async (req, res) => {
     // let redirectUrl = res.locals.redirectUrl || "/";
     // res.redirect(redirectUrl);
     // return res.json({status : "success", success : "Login Successfull", user : req.user});
-
+    // console.log(req.user._id);
     const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(req.user._id)
 
     const loggedInUser = await User.findById(req.user._id).select("-password -refreshToken")
